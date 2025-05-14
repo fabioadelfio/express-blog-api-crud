@@ -43,7 +43,8 @@ const destroy = (req, res) => {
         })
     }
 
-    posts.splice(posts.indexOf(id), 1);
+    const index = posts.indexOf(post);
+    posts.splice(index, 1);
 
     res.sendStatus(204);
 };
