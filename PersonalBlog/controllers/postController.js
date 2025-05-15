@@ -76,7 +76,6 @@ const store = (req, res) => {
 const update = (req, res) => {
     const id = parseInt(req.params.id);
     const originalPost = posts.find(originalPost => originalPost.id === id);
-    originalPost ? res.json(post) : res.status(404).send({ error: `Post con id ${id} non trovato` });
 
     if(!originalPost) {
         return res.status(404).json({
@@ -128,6 +127,14 @@ const update = (req, res) => {
 
     res.json(updatedPost);
 };
+
+const patch = (req, res) => {
+    const id = parseInt(req.params.id);
+    const post = posts.find(p => p.id === id);
+    post ? res.json(post) : res.status(404).send({ error: `Post con id ${id} non trovato` });
+
+
+}
 
 const destroy = (req, res) => {
     const id = parseInt(req.params.id);
