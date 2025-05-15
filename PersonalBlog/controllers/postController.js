@@ -75,7 +75,58 @@ const store = (req, res) => {
 
 const update = (req, res) => {
     const id = parseInt(req.params.id);
-    res.send(`Modifica del post ${id}`);
+    const originalPost = posts.find(originalPost => originalPost.id === id);
+    originalPost ? res.json(post) : res.status(404).send({ error: `Post con id ${id} non trovato` });
+
+    if(!originalPost) {
+        return res.status(404).json({
+            status: 404,
+            error: `404 Not Found`,
+            message: `Post non trovato`
+        })
+    }
+
+    const updatedPost = { title, content, image, tags } = req.body;
+
+    let isRequestMalformed = false;
+    let malformedElements = [];
+
+    if(!title || typeof title !== `string` || title.length < 3) {
+        isRequestMalformed = true; 
+        malformedElements.push(`title`);
+    }
+    if(!content || typeof content !== `string` || content.length < 3) {
+        isRequestMalformed = true; 
+        malformedElements.push(`content`);
+    }
+    if(!image || typeof image !== `string` || image.length < 3) {
+        isRequestMalformed = true; 
+        malformedElements.push(`image`);
+    }
+    if(!Array.isArray(tags)) {
+        isRequestMalformed = true; 
+        malformedElements.push(`tags`);
+    }
+
+    if(isRequestMalformed) {
+        res.status(400);
+        res.json({
+            error: `400 Bad Request`,
+            message: `Request is malformed`,
+            malformedElements
+        });
+        return;
+    };
+
+    if(title) originalPost.title = title;
+    if(content) originalPost.content = content;
+    if(image) originalPost.image = image;
+    if(tags) originalPost.tags = tags;
+
+    const postIndex = posts.indexOf(originalPost);
+    posts.slice(postIndex, 1, updatedPost);
+
+    res.json(updatedPost);
 };
 
 const destroy = (req, res) => {
