@@ -128,12 +128,19 @@ const update = (req, res) => {
     res.json(updatedPost);
 };
 
-const patch = (req, res) => {
+const modify = (req, res) => {
     const id = parseInt(req.params.id);
     const post = posts.find(p => p.id === id);
     post ? res.json(post) : res.status(404).send({ error: `Post con id ${id} non trovato` });
 
+    const { title, content, image, tags } = req.body;
 
+    post.title = title ?? post.title;
+    post.content = content ?? post.content;
+    post.image = image ?? post.image;
+    post.tags = tags ?? post.tags;
+
+    res.json(post);
 }
 
 const destroy = (req, res) => {
@@ -157,4 +164,4 @@ const destroy = (req, res) => {
     res.sendStatus(204);
 };
 
-module.exports = { index, show, store, update, destroy };
+module.exports = { index, show, store, update, modify, destroy };
