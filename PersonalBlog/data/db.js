@@ -1,7 +1,7 @@
 const appPort = 3000;
 const appURL = `http://localhost:${appPort}`;
 
-const posts = [
+let posts = [
   {
     id: 1,
     title: "Ciambellone",
