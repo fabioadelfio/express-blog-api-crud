@@ -16,40 +16,36 @@ const index = (req, res) => {
 const show = (req, res) => {
     const id = parseInt(req.params.id);
     const post = posts.find(p => p.id === id);
-    post ? res.json(post) : res.status(404).send({ error: `Post con id ${id} non trovato` });
+    if(!post) {
+        const error = new Error(`Post Not Found`);
+        error.statusCode = 404;
+        throw error;
+    }
 };
 
 const store = (req, res) => {
     const { title, content, image, tags } = req.body;
 
-    let isRequestMalformed = false;
     let malformedElements = [];
 
     if(!title || typeof title !== `string` || title.length < 3) {
-        isRequestMalformed = true; 
         malformedElements.push(`title`);
     }
     if(!content || typeof content !== `string` || content.length < 3) {
-        isRequestMalformed = true; 
         malformedElements.push(`content`);
     }
     if(!image || typeof image !== `string` || image.length < 3) {
-        isRequestMalformed = true; 
         malformedElements.push(`image`);
     }
     if(!Array.isArray(tags)) {
-        isRequestMalformed = true; 
         malformedElements.push(`tags`);
     }
 
-    if(isRequestMalformed) {
-        res.status(400);
-        res.json({
-            error: `400 Bad Request`,
-            message: `Request is malformed`,
-            malformedElements
-        });
-        return;
+    if(malformedElements.length) {
+        const error = new Error(`Request is malformed`);
+        error.statusCode = 400;
+        error.data = { malformedElements };
+        throw error;
     };
 
     let maxId = 0;
@@ -78,43 +74,33 @@ const update = (req, res) => {
     const originalPost = posts.find(originalPost => originalPost.id === id);
 
     if(!originalPost) {
-        return res.status(404).json({
-            status: 404,
-            error: `404 Not Found`,
-            message: `Post non trovato`
-        })
+        const error = new Error(`Post Not Found`);
+        error.statusCode = 404;
+        throw error;
     }
 
     const updatedPost = { title, content, image, tags } = req.body;
 
-    let isRequestMalformed = false;
     let malformedElements = [];
 
     if(!title || typeof title !== `string` || title.length < 3) {
-        isRequestMalformed = true; 
         malformedElements.push(`title`);
     }
     if(!content || typeof content !== `string` || content.length < 3) {
-        isRequestMalformed = true; 
         malformedElements.push(`content`);
     }
     if(!image || typeof image !== `string` || image.length < 3) {
-        isRequestMalformed = true; 
         malformedElements.push(`image`);
     }
     if(!Array.isArray(tags)) {
-        isRequestMalformed = true; 
         malformedElements.push(`tags`);
     }
 
-    if(isRequestMalformed) {
-        res.status(400);
-        res.json({
-            error: `400 Bad Request`,
-            message: `Request is malformed`,
-            malformedElements
-        });
-        return;
+    if(malformedElements.length) {
+        const error = new Error(`Request is malformed`);
+        error.statusCode = 400;
+        error.data = { malformedElements };
+        throw error;
     };
 
     if(title) originalPost.title = title;
@@ -123,7 +109,7 @@ const update = (req, res) => {
     if(tags) originalPost.tags = tags;
 
     const postIndex = posts.indexOf(originalPost);
-    posts.slice(postIndex, 1, updatedPost);
+    posts.splice(postIndex, 1, updatedPost);
 
     res.json(updatedPost);
 };
@@ -131,7 +117,12 @@ const update = (req, res) => {
 const modify = (req, res) => {
     const id = parseInt(req.params.id);
     const post = posts.find(p => p.id === id);
-    post ? res.json(post) : res.status(404).send({ error: `Post con id ${id} non trovato` });
+
+    if(!post) {
+        const error = new Error(`Post Not Found`);
+        error.statusCode = 404;
+        throw error;
+    }
 
     const { title, content, image, tags } = req.body;
 
@@ -149,13 +140,9 @@ const destroy = (req, res) => {
     const post = posts.find(p => p.id === id);
 
     if(!post) {
-        res.status(404);
-
-        return res.json({
-            status: 404,
-            error: `Not Found`,
-            message: `Post non trovato`
-        })
+        const error = new Error(`Post Not Found`);
+        error.statusCode = 404;
+        throw error;
     }
 
     const index = posts.indexOf(post);

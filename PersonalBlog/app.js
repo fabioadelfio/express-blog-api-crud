@@ -15,7 +15,15 @@ app.get(`/bacheca`, (req, res) => {
     res.json({ posts });
 });
 
+// Routers
 app.use(`/posts`, postsRouter);
+
+// Middlewares
+const notFound = require(`./middlewares/notFound`);
+app.use(notFound);
+
+const errorHandler = require(`./middlewares/errorHandler`);
+app.use(errorHandler);
 
 app.listen(appPort, () => {
     console.log(`Server listening on ${appURL}`);
